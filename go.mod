@@ -1,4 +1,4 @@
-module github.com/marcus-crane/opendog
+module github.com/vend/opendog
 
 go 1.19
 

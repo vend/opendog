@@ -4,8 +4,6 @@ A hacky translation layer that converts Datadog traces into OpenTelemetry Protob
 
 It's not perfect and there is a bunch of stuff to be implemented and tidied up but it's good enough to pipe Datadog traces locally into [Jaegar All In One](https://www.jaegertracing.io/docs/1.39/getting-started/#all-in-one)
 
-It's also a successor to my very lightweight but handy tool [Spanner](https://github.com/marcus-crane/spanner) which I use to sanity check a lot of APM instrumentation without the overhead of running an entire Datadog agent.
-
 ## Usage
 
 ```console

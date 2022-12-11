@@ -13,20 +13,6 @@ archives:
       - README.md
 release:
   github:
-    owner: marcus-crane
+    owner: vend
     name: opendog
   prerelease: auto
-brews:
-  - tap:
-      owner: marcus-crane
-      name: homebrew-tap
-      branch: main
-    folder: Formula
-    commit_author:
-      name: utf9k Release Bot
-      email: helper@utf9k.net
-    commit_msg_template: "Brew formula update for {{ .ProjectName }} version {{ .Tag }}"
-    homepage: "https://utf9k.net"
-    description: "A hacky translation layer that converts Datadog traces into OpenTelemetry Protobufs for use with Jaegar"
-    license: "MIT"
-    skip_upload: auto
