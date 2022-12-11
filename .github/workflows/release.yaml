@@ -6,7 +6,6 @@ on:
 
 permissions:
   contents: write
-  packages: write
 
 jobs:
   goreleaser:
@@ -29,4 +28,4 @@ jobs:
           version: latest
           args: release --debug --rm-dist
         env:
-          GITHUB_TOKEN: ${{ secrets.GHA_PAT_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
