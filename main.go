@@ -11,7 +11,6 @@ import (
 	"time"
 
 	"github.com/vmihailenco/msgpack/v5"
-	_ "github.com/vmihailenco/msgpack/v5"
 	semconv "go.opentelemetry.io/otel/semconv/v1.12.0"
 	collectorpb "go.opentelemetry.io/proto/otlp/collector/trace/v1"
 	v1 "go.opentelemetry.io/proto/otlp/common/v1"
