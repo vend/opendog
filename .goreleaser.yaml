@@ -9,7 +9,6 @@ builds:
       - amd64
 archives:
   - files:
-      - LICENSE
       - README.md
 release:
   github:
