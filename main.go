@@ -7,6 +7,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/vmihailenco/msgpack/v5"
@@ -28,20 +29,33 @@ func deserialiseMsgpackTraces(payload []byte) (ddtraces, error) {
 }
 
 func main() {
+	listenerPort := "8126"
+	if value, ok := os.LookupEnv("PORT"); ok {
+		listenerPort = value
+	}
+
+	collectorAddr := "http://localhost:4318/v1/traces"
+	if value, ok := os.LookupEnv("COLLECTOR_ADDRESS"); ok {
+		collectorAddr = value
+	}
+
 	traceHandler := func(w http.ResponseWriter, r *http.Request) {
 		body, err := io.ReadAll(r.Body)
 		if err != nil {
-			panic(err)
+			log.Printf("Failed to parse body")
+			return
 		}
 		if len(body) == 1 {
-			log.Printf("Received initial connection from %s on %s", r.UserAgent(), r.RemoteAddr)
+			log.Printf("Received initial connection from %s on %s. This payload contains no traces", r.UserAgent(), r.RemoteAddr)
 			return
 		}
 		traces, err := deserialiseMsgpackTraces(body)
 		err = msgpack.Unmarshal(body, &traces)
 		if err != nil {
 			log.Println("Failed to unpack traces")
+			return
 		}
+		fmt.Fprintf(w, "OK")
 		if len(traces) > 0 && len(traces[0]) > 0 {
 			resourceSpans := []*tracepb.ResourceSpans{}
 			for _, trace := range traces {
@@ -56,12 +70,13 @@ func main() {
 							Code: tracepb.Status_STATUS_CODE_UNSET,
 						},
 					}
+					// TODO: Use Datadog's own recommended way of converting IDs
+					// https://docs.datadoghq.com/tracing/other_telemetry/connect_logs_and_traces/opentelemetry/?tab=go
 					if span.TraceID != 0 {
 						// Trace ID is 32 chars while Datadog's default is 19 so we just pad it out
 						traceID, err := hex.DecodeString(fmt.Sprintf("%032d", span.TraceID))
 						if err != nil {
-							log.Print(err)
-							log.Print("Failed to convert trace ID")
+							log.Printf("Failed to convert trace ID")
 						}
 						pbspan.TraceId = traceID
 					}
@@ -70,7 +85,7 @@ func main() {
 						// In the event that it is shorter, we will pad it out to be 16 chars
 						spanID, err := hex.DecodeString(fmt.Sprintf("%016d", span.SpanID)[:16])
 						if err != nil {
-							log.Print("Failed to convert spanID ID")
+							log.Print("Failed to convert span ID")
 						}
 						pbspan.SpanId = spanID
 					}
@@ -143,22 +158,23 @@ func main() {
 			}
 			collectorRequest, err := proto.Marshal(&request)
 			if err != nil {
-				log.Fatal(err)
+				log.Printf("Failed to marshal gRPC request")
+				return
 			}
-			res, err := http.Post("http://localhost:4318/v1/traces", "application/x-protobuf", bytes.NewBuffer(collectorRequest))
+			res, err := http.Post(collectorAddr, "application/x-protobuf", bytes.NewBuffer(collectorRequest))
 			if err != nil {
-				log.Fatal(err)
+				log.Printf("Failed to post gRPC request")
+				return
 			}
 			if res.StatusCode == 200 {
 				log.Printf("Succesfully converted and forwarded %d spans", len(resourceSpans))
 			} else {
 				log.Printf("Failed to convert spans. Received status code %d", res.StatusCode)
 			}
-			fmt.Fprintf(w, "OK")
 		}
 	}
 
 	http.HandleFunc("/", traceHandler)
-	log.Print("Opendog is listening on 127.0.0.1:8126")
-	log.Fatal(http.ListenAndServe(":8126", nil))
+	log.Printf("Opendog is listening on 127.0.0.1:%s", listenerPort)
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", listenerPort), nil))
 }

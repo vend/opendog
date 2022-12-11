@@ -23,6 +23,15 @@ If you'd like to point a container at it using Docker, you can set the following
 
 Eventually it'll be packaged up properly, provide a docker container etc etc
 
+## Variables
+
+There are two environment variables that can be used for configuring Opendog
+
+| Name                | Default Value                   | Notes                                                                                                              |
+| ------------------- | ------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| `COLLECTOR_ADDRESS` | http://localhost:4318/v1/traces | The address to send gRPC payloads to. In this case, 4318 is the OTel endpoint used by Jaeger.                      |
+| `PORT`              | 8126                            | The address to receive traces on. In this case, 8126 is the default traces port for the Datadog agent (aka statsd) |
+
 ## Example of Datadog traces piped into Jaegar
 
 ![](./docs/example.png)
