@@ -1,4 +1,4 @@
-project_name: khinsider
+project_name: opendog
 builds:
   - binary: opendog
     goos:
@@ -14,7 +14,7 @@ archives:
 release:
   github:
     owner: marcus-crane
-    name: khinsider
+    name: opendog
   prerelease: auto
 brews:
   - tap:
