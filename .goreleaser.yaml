@@ -1,0 +1,32 @@
+project_name: khinsider
+builds:
+  - binary: opendog
+    goos:
+      - darwin
+      - linux
+    goarch:
+      - arm64
+      - amd64
+archives:
+  - files:
+      - LICENSE
+      - README.md
+release:
+  github:
+    owner: marcus-crane
+    name: khinsider
+  prerelease: auto
+brews:
+  - tap:
+      owner: marcus-crane
+      name: homebrew-tap
+      branch: main
+    folder: Formula
+    commit_author:
+      name: utf9k Release Bot
+      email: helper@utf9k.net
+    commit_msg_template: "Brew formula update for {{ .ProjectName }} version {{ .Tag }}"
+    homepage: "https://utf9k.net"
+    description: "A hacky translation layer that converts Datadog traces into OpenTelemetry Protobufs for use with Jaegar"
+    license: "MIT"
+    skip_upload: auto
